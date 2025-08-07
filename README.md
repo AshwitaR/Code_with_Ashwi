@@ -1,7 +1,7 @@
 # Code_with_Ashwi
 <!-- banner image -->
 <p align="center">
-  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=24&duration=3000&pause=1000&color=F78BB2&center=true&vCenter=true&width=500&lines=Hey+there+👋+I'm+Ashwita;LeetCoding+My+Way+Through+Python+💻;Coding+With+Brain+and+Vibes+💅" />
+  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=24&duration=3000&pause=1000&color=F78BB2&center=true&vCenter=true&width=500&lines=Hey+there+👋+I'm+Ashwita;LeetCoding+My+Way+💻;Coding+With+Brain+and+Vibes+💅" />
 </p>
 
 <p align="center">
