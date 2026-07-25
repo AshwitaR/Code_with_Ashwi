@@ -19,7 +19,7 @@
 
 ## 🌟 What's This?
 
-> My *aesthetic* little vault of all the DSA problems I solve on [LeetCode](https://leetcode.com/) — because brain gains look better in a repo 💻🧃
+> My *aesthetic* little vault of all the DSA problems I solve on [LeetCode](https://leetcode.com/) - because brain gains look better in a repo 💻🧃
 
 ### 🎯 Goals:
 - ✍️ Daily(ish) problem-solving
