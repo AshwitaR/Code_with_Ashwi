@@ -1,0 +1,59 @@
+class Solution {
+    public String smallestPalindrome(String s, int k) {
+        int n = s.length();
+        int[] count = new int[26];
+        for (char c : s.toCharArray()) count[c - 'a']++;
+        
+        int[] half = new int[26];
+        char mid = 0;
+        int m = 0;
+        for (int i = 0; i < 26; i++) {
+            half[i] = count[i] / 2;
+            m += half[i];
+            if (count[i] % 2 == 1) mid = (char) ('a' + i);
+        }
+        
+        long kLong = k;
+        long total = permCount(half);
+        if (kLong > total) return "";
+        
+        StringBuilder halfStr = new StringBuilder();
+        int remaining = m;
+        for (int pos = 0; pos < m; pos++) {
+            for (int c = 0; c < 26; c++) {
+                if (half[c] == 0) continue;
+                half[c]--;
+                long cnt = permCount(half);
+                if (kLong <= cnt) {
+                    halfStr.append((char) ('a' + c));
+                    remaining--;
+                    break;
+                } else {
+                    kLong -= cnt;
+                    half[c]++;
+                }
+            }
+        }
+        
+        StringBuilder result = new StringBuilder();
+        result.append(halfStr);
+        if (mid != 0) result.append(mid);
+        result.append(halfStr.reverse());
+        return result.toString();
+    }
+    
+    private long permCount(int[] counts) {
+        long CAP = 4_000_000_000L;
+        long result = 1;
+        long seen = 0;
+        for (int i = 0; i < 26; i++) {
+            for (int j = 1; j <= counts[i]; j++) {
+                seen++;
+                if (result > CAP / seen) return CAP;
+                result = result * seen / j;
+                if (result > CAP) return CAP;
+            }
+        }
+        return result;
+    }
+}
