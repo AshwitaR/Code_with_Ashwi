@@ -1,0 +1,39 @@
+class Solution {
+    public List<Integer> remainingMethods(int n, int k, int[][] invocations) {
+        Map<Integer, List<Integer>> graph = new HashMap<>();
+        for (int[] edge : invocations) {
+            graph.computeIfAbsent(edge[0], x -> new ArrayList<>()).add(edge[1]);
+        }
+        
+        Set<Integer> suspicious = new HashSet<>();
+        Deque<Integer> queue = new ArrayDeque<>();
+        queue.add(k);
+        suspicious.add(k);
+        
+        while (!queue.isEmpty()) {
+            int curr = queue.poll();
+            for (int next : graph.getOrDefault(curr, new ArrayList<>())) {
+                if (!suspicious.contains(next)) {
+                    suspicious.add(next);
+                    queue.add(next);
+                }
+            }
+        }
+        
+        for (int[] edge : invocations) {
+            int from = edge[0];
+            int to = edge[1];
+            if (!suspicious.contains(from) && suspicious.contains(to)) {
+                List<Integer> all = new ArrayList<>();
+                for (int i = 0; i < n; i++) all.add(i);
+                return all;
+            }
+        }
+        
+        List<Integer> result = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            if (!suspicious.contains(i)) result.add(i);
+        }
+        return result;
+    }
+}
