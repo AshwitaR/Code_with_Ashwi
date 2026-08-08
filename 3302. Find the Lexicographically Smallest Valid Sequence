@@ -1,0 +1,70 @@
+import java.util.*;
+
+class Solution {
+    public int[] validSequence(String word1, String word2) {
+        int n = word1.length(), m = word2.length();
+        
+        List<List<Integer>> positions = new ArrayList<>();
+        for (int c = 0; c < 26; c++) positions.add(new ArrayList<>());
+        for (int i = 0; i < n; i++) {
+            positions.get(word1.charAt(i) - 'a').add(i);
+        }
+        
+        int[] last = new int[m + 1];
+        last[m] = n;
+        int p = n;
+        boolean feasible = true;
+        
+        for (int j = m - 1; j >= 0; j--) {
+            if (!feasible) {
+                last[j] = -1;
+                continue;
+            }
+            List<Integer> occ = positions.get(word2.charAt(j) - 'a');
+            int k = rightmostBefore(occ, p);
+            if (k == -1) {
+                feasible = false;
+                last[j] = -1;
+            } else {
+                last[j] = k;
+                p = k;
+            }
+        }
+        
+        int[] result = new int[m];
+        int i = 0, j = 0;
+        boolean used = false;
+        
+        while (i < n && j < m) {
+            if (word1.charAt(i) == word2.charAt(j)) {
+                result[j] = i;
+                i++;
+                j++;
+            } else if (!used && last[j + 1] != -1 && i + 1 <= last[j + 1]) {
+                result[j] = i;
+                i++;
+                j++;
+                used = true;
+            } else {
+                i++;
+            }
+        }
+        
+        if (j == m) return result;
+        return new int[0];
+    }
+    
+    private int rightmostBefore(List<Integer> occ, int p) {
+        int lo = 0, hi = occ.size() - 1, ans = -1;
+        while (lo <= hi) {
+            int mid = (lo + hi) / 2;
+            if (occ.get(mid) < p) {
+                ans = occ.get(mid);
+                lo = mid + 1;
+            } else {
+                hi = mid - 1;
+            }
+        }
+        return ans;
+    }
+}
