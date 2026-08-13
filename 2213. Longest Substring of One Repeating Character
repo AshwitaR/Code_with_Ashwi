@@ -1,0 +1,79 @@
+class Solution {
+    private int n;
+    private char[] arr;
+    private int[] pre, suf, best;
+    
+    public int[] longestRepeating(String s, String queryCharacters, int[] queryIndices) {
+        n = s.length();
+        arr = s.toCharArray();
+        pre = new int[4 * n];
+        suf = new int[4 * n];
+        best = new int[4 * n];
+        
+        build(1, 0, n - 1);
+        
+        int k = queryIndices.length;
+        int[] result = new int[k];
+        
+        for (int i = 0; i < k; i++) {
+            int idx = queryIndices[i];
+            char ch = queryCharacters.charAt(i);
+            arr[idx] = ch;
+            update(1, 0, n - 1, idx);
+            result[i] = best[1];
+        }
+        
+        return result;
+    }
+    
+    private void build(int node, int l, int r) {
+        if (l == r) {
+            pre[node] = 1;
+            suf[node] = 1;
+            best[node] = 1;
+            return;
+        }
+        int mid = (l + r) / 2;
+        build(2 * node, l, mid);
+        build(2 * node + 1, mid + 1, r);
+        merge(node, l, mid, r);
+    }
+    
+    private void update(int node, int l, int r, int idx) {
+        if (l == r) {
+            pre[node] = 1;
+            suf[node] = 1;
+            best[node] = 1;
+            return;
+        }
+        int mid = (l + r) / 2;
+        if (idx <= mid) {
+            update(2 * node, l, mid, idx);
+        } else {
+            update(2 * node + 1, mid + 1, r, idx);
+        }
+        merge(node, l, mid, r);
+    }
+    
+    private void merge(int node, int l, int mid, int r) {
+        int left = 2 * node, right = 2 * node + 1;
+        int leftLen = mid - l + 1;
+        int rightLen = r - mid;
+        boolean boundaryMatch = arr[mid] == arr[mid + 1];
+        
+        pre[node] = pre[left];
+        if (pre[left] == leftLen && boundaryMatch) {
+            pre[node] += pre[right];
+        }
+        
+        suf[node] = suf[right];
+        if (suf[right] == rightLen && boundaryMatch) {
+            suf[node] += suf[left];
+        }
+        
+        best[node] = Math.max(best[left], best[right]);
+        if (boundaryMatch) {
+            best[node] = Math.max(best[node], suf[left] + pre[right]);
+        }
+    }
+}
