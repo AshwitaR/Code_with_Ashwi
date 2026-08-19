@@ -1,0 +1,38 @@
+import java.util.*;
+
+class Solution {
+    public int maxNumberOfFamilies(int n, int[][] reservedSeats) {
+        Map<Integer, Integer> rowMask = new HashMap<>();
+        
+        for (int[] res : reservedSeats) {
+            int row = res[0];
+            int seat = res[1];
+            if (seat < 2 || seat > 9) continue;
+            int bit = 1 << (seat - 2);
+            rowMask.put(row, rowMask.getOrDefault(row, 0) | bit);
+        }
+        
+        int leftBlock = 0b00001111;
+        int midBlock = 0b00111100;
+        int rightBlock = 0b11110000;
+        
+        int count = 0;
+        for (int mask : rowMask.values()) {
+            boolean leftOK = (mask & leftBlock) == 0;
+            boolean rightOK = (mask & rightBlock) == 0;
+            boolean midOK = (mask & midBlock) == 0;
+            
+            if (leftOK && rightOK) {
+                count += 2;
+            } else if (leftOK || rightOK || midOK) {
+                count += 1;
+            }
+        }
+        
+        int rowsWithReservations = rowMask.size();
+        int freeRows = n - rowsWithReservations;
+        count += freeRows * 2;
+        
+        return count;
+    }
+}
