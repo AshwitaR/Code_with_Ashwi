@@ -1,0 +1,96 @@
+class Solution {
+    public String lexPalindromicPermutation(String s, String target) {
+        int n = s.length();
+        int[] count = new int[26];
+        for (char c : s.toCharArray()) count[c - 'a']++;
+        
+        int oddCount = 0;
+        int oddChar = -1;
+        for (int i = 0; i < 26; i++) {
+            if (count[i] % 2 == 1) {
+                oddCount++;
+                oddChar = i;
+            }
+        }
+        
+        boolean hasMid = (n % 2 == 1);
+        if (hasMid && oddCount != 1) return "";
+        if (!hasMid && oddCount != 0) return "";
+        
+        int m = n / 2;
+        int[] halfCount = new int[26];
+        for (int i = 0; i < 26; i++) halfCount[i] = count[i] / 2;
+        
+        char midChar = hasMid ? (char) ('a' + oddChar) : 0;
+        
+        int[][] snapshots = new int[m][];
+        int[] working = halfCount.clone();
+        boolean fullyMatched = true;
+        int lastPos = -1;
+        
+        for (int pos = 0; pos < m; pos++) {
+            snapshots[pos] = working.clone();
+            int c = target.charAt(pos) - 'a';
+            lastPos = pos;
+            if (working[c] == 0) {
+                fullyMatched = false;
+                break;
+            }
+            working[c]--;
+        }
+        
+        if (fullyMatched) {
+            String halfStr = target.substring(0, m);
+            String reversedHalf = new StringBuilder(halfStr).reverse().toString();
+            
+            if (hasMid) {
+                char targetMid = target.charAt(m);
+                if (midChar > targetMid) {
+                    return halfStr + midChar + reversedHalf;
+                } else if (midChar == targetMid) {
+                    String targetSecondHalf = target.substring(m + 1);
+                    if (reversedHalf.compareTo(targetSecondHalf) > 0) {
+                        return halfStr + midChar + reversedHalf;
+                    }
+                }
+            } else {
+                String targetSecondHalf = target.substring(m);
+                if (reversedHalf.compareTo(targetSecondHalf) > 0) {
+                    return halfStr + reversedHalf;
+                }
+            }
+        }
+        
+        for (int pos = lastPos; pos >= 0; pos--) {
+            int[] avail = snapshots[pos];
+            int targetChar = target.charAt(pos) - 'a';
+            for (int c = targetChar + 1; c < 26; c++) {
+                if (avail[c] > 0) {
+                    StringBuilder half = new StringBuilder();
+                    half.append(target, 0, pos);
+                    half.append((char) ('a' + c));
+                    
+                    int[] remaining = avail.clone();
+                    remaining[c]--;
+                    for (int ch = 0; ch < 26; ch++) {
+                        for (int t = 0; t < remaining[ch]; t++) {
+                            half.append((char) ('a' + ch));
+                        }
+                    }
+                    
+                    String halfStr = half.toString();
+                    String reversedHalf = new StringBuilder(halfStr).reverse().toString();
+                    
+                    StringBuilder result = new StringBuilder();
+                    result.append(halfStr);
+                    if (hasMid) result.append(midChar);
+                    result.append(reversedHalf);
+                    
+                    return result.toString();
+                }
+            }
+        }
+        
+        return "";
+    }
+}
