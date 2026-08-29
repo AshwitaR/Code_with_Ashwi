@@ -1,0 +1,43 @@
+import java.util.*;
+
+class Solution {
+    public int[] lexicographicallySmallestArray(int[] nums, int limit) {
+        int n = nums.length;
+        Integer[] indices = new Integer[n];
+        for (int i = 0; i < n; i++) indices[i] = i;
+        Arrays.sort(indices, (a, b) -> nums[a] - nums[b]);
+        
+        List<List<Integer>> groups = new ArrayList<>();
+        List<Integer> currentGroup = new ArrayList<>();
+        currentGroup.add(indices[0]);
+        groups.add(currentGroup);
+        
+        for (int i = 1; i < n; i++) {
+            if (nums[indices[i]] - nums[indices[i - 1]] <= limit) {
+                groups.get(groups.size() - 1).add(indices[i]);
+            } else {
+                List<Integer> newGroup = new ArrayList<>();
+                newGroup.add(indices[i]);
+                groups.add(newGroup);
+            }
+        }
+        
+        int[] result = new int[n];
+        for (List<Integer> group : groups) {
+            List<Integer> sortedIndices = new ArrayList<>(group);
+            Collections.sort(sortedIndices);
+            
+            int[] values = new int[group.size()];
+            for (int i = 0; i < group.size(); i++) {
+                values[i] = nums[group.get(i)];
+            }
+            Arrays.sort(values);
+            
+            for (int i = 0; i < sortedIndices.size(); i++) {
+                result[sortedIndices.get(i)] = values[i];
+            }
+        }
+        
+        return result;
+    }
+}
