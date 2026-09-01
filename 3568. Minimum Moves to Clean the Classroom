@@ -1,0 +1,69 @@
+import java.util.*;
+
+class Solution {
+    public int minMoves(String[] classroom, int energy) {
+        int m = classroom.length, n = classroom[0].length();
+        char[][] grid = new char[m][n];
+        List<int[]> litterPos = new ArrayList<>();
+        int sr = -1, sc = -1;
+        
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                char c = classroom[i].charAt(j);
+                grid[i][j] = c;
+                if (c == 'S') { sr = i; sc = j; }
+                if (c == 'L') litterPos.add(new int[]{i, j});
+            }
+        }
+        
+        int L = litterPos.size();
+        if (L == 0) return 0;
+        int fullMask = (1 << L) - 1;
+        
+        int[][] litterIndex = new int[m][n];
+        for (int[] row : litterIndex) Arrays.fill(row, -1);
+        for (int idx = 0; idx < L; idx++) {
+            int[] p = litterPos.get(idx);
+            litterIndex[p[0]][p[1]] = idx;
+        }
+        
+        int[][][] bestEnergy = new int[m][n][1 << L];
+        for (int[][] a : bestEnergy) for (int[] b : a) Arrays.fill(b, -1);
+        
+        Deque<int[]> queue = new ArrayDeque<>();
+        bestEnergy[sr][sc][0] = energy;
+        queue.add(new int[]{sr, sc, energy, 0, 0});
+        
+        int[] dr = {-1, 1, 0, 0};
+        int[] dc = {0, 0, -1, 1};
+        
+        while (!queue.isEmpty()) {
+            int[] cur = queue.poll();
+            int r = cur[0], c = cur[1], e = cur[2], mask = cur[3], moves = cur[4];
+            
+            if (mask == fullMask) return moves;
+            if (e <= 0) continue;
+            
+            for (int dir = 0; dir < 4; dir++) {
+                int nr = r + dr[dir], nc = c + dc[dir];
+                if (nr < 0 || nr >= m || nc < 0 || nc >= n) continue;
+                char nch = grid[nr][nc];
+                if (nch == 'X') continue;
+                
+                int ne = e - 1;
+                int nmask = mask;
+                if (nch == 'R') ne = energy;
+                if (nch == 'L') {
+                    int idx = litterIndex[nr][nc];
+                    nmask = mask | (1 << idx);
+                }
+                
+                if (ne <= bestEnergy[nr][nc][nmask]) continue;
+                bestEnergy[nr][nc][nmask] = ne;
+                queue.add(new int[]{nr, nc, ne, nmask, moves + 1});
+            }
+        }
+        
+        return -1;
+    }
+}
