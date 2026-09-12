@@ -1,0 +1,38 @@
+import bisect
+from typing import List
+
+class Solution:
+    def maximumWeight(self, intervals: List[List[int]]) -> List[int]:
+        n = len(intervals)
+        indexed = [(intervals[i][0], intervals[i][1], intervals[i][2], i) for i in range(n)]
+        indexed.sort(key=lambda x: x[1])
+        ends = [item[1] for item in indexed]
+        
+        dp = [[(0, ())] * 5 for _ in range(n + 1)]
+        
+        for i in range(1, n + 1):
+            l, r, w, orig_idx = indexed[i - 1]
+            p = bisect.bisect_left(ends, l, 0, i - 1)
+            
+            for k in range(5):
+                skip = dp[i - 1][k]
+                if k >= 1:
+                    prev_score, prev_indices = dp[p][k - 1]
+                    take_score = prev_score + w
+                    take_indices = tuple(sorted(prev_indices + (orig_idx,)))
+                    take = (take_score, take_indices)
+                else:
+                    take = None
+                
+                if take is None:
+                    best = skip
+                elif take[0] > skip[0]:
+                    best = take
+                elif take[0] < skip[0]:
+                    best = skip
+                else:
+                    best = take if take[1] < skip[1] else skip
+                
+                dp[i][k] = best
+        
+        return list(dp[n][4][1])
