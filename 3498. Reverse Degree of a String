@@ -1,0 +1,9 @@
+class Solution:
+    def reverseDegree(self, s: str) -> int:
+        total = 0
+        for i, c in enumerate(s):
+            reversedAlphabetPos = 26 - (ord(c) - ord('a'))
+            stringPos = i + 1
+            total += reversedAlphabetPos * stringPos
+        
+        return total
