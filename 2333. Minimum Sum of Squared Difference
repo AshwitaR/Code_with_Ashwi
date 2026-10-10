@@ -1,0 +1,20 @@
+class Solution:
+    def minSumSquareDiff(self, nums1: list[int], nums2: list[int], k1: int, k2: int) -> int:
+        diffs = sorted((abs(a - b) for a, b in zip(nums1, nums2)), reverse=True)
+        n = len(diffs)
+        diffs.append(0)
+        k = k1 + k2
+
+        for i in range(n):
+            cnt = i + 1
+            cost = (diffs[i] - diffs[i + 1]) * cnt
+            if k >= cost:
+                k -= cost
+            else:
+                q, r = divmod(k, cnt)
+                v = diffs[i] - q
+                total = (cnt - r) * v * v + r * (v - 1) * (v - 1)
+                total += sum(d * d for d in diffs[i + 1:n])
+                return total
+
+        return 0
