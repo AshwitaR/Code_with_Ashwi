@@ -1,0 +1,45 @@
+from collections import deque
+from typing import List
+
+class Solution:
+    def minOperations(self, nums: List[int]) -> int:
+        n = len(nums)
+        s = nums[0]
+
+        isA = all(nums[i] == (s + i) % n for i in range(n))
+        isB = all(nums[i] == (s - i) % n for i in range(n))
+
+        if not isA and not isB:
+            return -1
+
+        dist = {}
+        q = deque()
+        if isA:
+            dist[(0, s)] = 0
+            q.append((0, s))
+        if isB and (1, s) not in dist:
+            dist[(1, s)] = 0
+            q.append((1, s))
+
+        def is_target(t, sh):
+            if t == 0:
+                return sh == 0
+            return all((sh - i) % n == i for i in range(n))
+
+        target_B = is_target(1, 0)
+
+        while q:
+            t, sh = q.popleft()
+            d = dist[(t, sh)]
+            if (t == 0 and sh == 0) or (t == 1 and sh == 0 and target_B):
+                return d
+            if t == 0:
+                nxt = [(0, (sh + 1) % n), (1, (sh - 1) % n)]
+            else:
+                nxt = [(1, (sh - 1) % n), (0, (sh + 1) % n)]
+            for node in nxt:
+                if node not in dist:
+                    dist[node] = d + 1
+                    q.append(node)
+
+        return -1
