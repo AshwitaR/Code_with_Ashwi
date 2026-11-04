@@ -1,0 +1,115 @@
+import heapq
+from typing import List
+
+class Solution:
+    def minOperations(self, nums: List[int], x: int, k: int) -> int:
+        n = len(nums)
+        costs = []
+        
+        lower = []  # max-heap for lower half (-val)
+        upper = []  # min-heap for upper half (val)
+        lower_sum = 0
+        upper_sum = 0
+        low_size = 0
+        up_size = 0
+        
+        remove_lower = {}
+        remove_upper = {}
+        lower_counts = {}
+        upper_counts = {}
+        
+        def balance():
+            nonlocal low_size, up_size, lower_sum, upper_sum
+            # Clean lazy deletions
+            while lower and remove_lower.get(-lower[0], 0) > 0:
+                val = -heapq.heappop(lower)
+                remove_lower[val] -= 1
+            while upper and remove_upper.get(upper[0], 0) > 0:
+                val = heapq.heappop(upper)
+                remove_upper[val] -= 1
+                
+            target_low = (x + 1) // 2
+            
+            while low_size > target_low:
+                while lower and remove_lower.get(-lower[0], 0) > 0:
+                    v = -heapq.heappop(lower)
+                    remove_lower[v] -= 1
+                if not lower:
+                    break
+                val = -heapq.heappop(lower)
+                low_size -= 1
+                lower_sum -= val
+                lower_counts[val] -= 1
+                
+                heapq.heappush(upper, val)
+                up_size += 1
+                upper_sum += val
+                upper_counts[val] = upper_counts.get(val, 0) + 1
+                
+            while low_size < target_low:
+                while upper and remove_upper.get(upper[0], 0) > 0:
+                    v = heapq.heappop(upper)
+                    remove_upper[v] -= 1
+                if not upper:
+                    break
+                val = heapq.heappop(upper)
+                up_size -= 1
+                upper_sum -= val
+                upper_counts[val] -= 1
+                
+                heapq.heappush(lower, -val)
+                low_size += 1
+                lower_sum += val
+                lower_counts[val] = lower_counts.get(val, 0) + 1
+
+        for i in range(n):
+            val = nums[i]
+            if not lower or val <= -lower[0]:
+                heapq.heappush(lower, -val)
+                lower_sum += val
+                low_size += 1
+                lower_counts[val] = lower_counts.get(val, 0) + 1
+            else:
+                heapq.heappush(upper, val)
+                upper_sum += val
+                up_size += 1
+                upper_counts[val] = upper_counts.get(val, 0) + 1
+            balance()
+            
+            if i >= x:
+                out_val = nums[i - x]
+                if lower_counts.get(out_val, 0) > 0:
+                    remove_lower[out_val] = remove_lower.get(out_val, 0) + 1
+                    lower_counts[out_val] -= 1
+                    lower_sum -= out_val
+                    low_size -= 1
+                else:
+                    remove_upper[out_val] = remove_upper.get(out_val, 0) + 1
+                    upper_counts[out_val] -= 1
+                    upper_sum -= out_val
+                    up_size -= 1
+                balance()
+                
+            if i >= x - 1:
+                while lower and remove_lower.get(-lower[0], 0) > 0:
+                    v = -heapq.heappop(lower)
+                    remove_lower[v] -= 1
+                median = -lower[0]
+                cost = (median * low_size - lower_sum) + (upper_sum - median * up_size)
+                costs.append(cost)
+                
+        m = len(costs)
+        INF = float('inf')
+        
+        dp = [[INF] * (m + 1) for _ in range(k + 1)]
+        for i in range(m + 1):
+            dp[0][i] = 0
+            
+        for j in range(1, k + 1):
+            for i in range(1, m + 1):
+                dp[j][i] = dp[j][i-1]
+                prev = max(0, i - x)
+                if dp[j-1][prev] != INF:
+                    dp[j][i] = min(dp[j][i], dp[j-1][prev] + costs[i-1])
+                    
+        return dp[k][m]
