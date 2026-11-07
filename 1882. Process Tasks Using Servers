@@ -1,0 +1,24 @@
+import heapq
+
+class Solution:
+    def assignTasks(self, servers: list[int], tasks: list[int]) -> list[int]:
+        free = [(w, i) for i, w in enumerate(servers)]
+        heapq.heapify(free)
+        busy = []
+        ans = []
+
+        for j, t in enumerate(tasks):
+            while busy and busy[0][0] <= j:
+                _, w, i = heapq.heappop(busy)
+                heapq.heappush(free, (w, i))
+
+            if free:
+                w, i = heapq.heappop(free)
+                start = j
+            else:
+                start, w, i = heapq.heappop(busy)
+            
+            ans.append(i)
+            heapq.heappush(busy, (start + t, w, i))
+
+        return ans
