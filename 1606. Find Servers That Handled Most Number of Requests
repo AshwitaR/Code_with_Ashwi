@@ -1,0 +1,27 @@
+import heapq
+from bisect import bisect_left
+
+class Solution:
+    def busiestServers(self, k: int, arrival: list[int], load: list[int]) -> list[int]:
+        free = list(range(k))
+        busy = []
+        count = [0] * k
+
+        for i, (a, l) in enumerate(zip(arrival, load)):
+            while busy and busy[0][0] <= a:
+                _, s = heapq.heappop(busy)
+                free.insert(bisect_left(free, s), s)
+
+            if not free:
+                continue
+
+            pos = bisect_left(free, i % k)
+            if pos == len(free):
+                pos = 0
+
+            s = free.pop(pos)
+            count[s] += 1
+            heapq.heappush(busy, (a + l, s))
+
+        best = max(count)
+        return [i for i, c in enumerate(count) if c == best]
